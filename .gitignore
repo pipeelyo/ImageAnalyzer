@@ -1,0 +1,24 @@
+# Virtual Environment
+venv/
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Django
+db.sqlite3
+/staticfiles/
+/media/
+
+# IDEs and editors
+.idea/
+.vscode/
+*.swp
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+
+# dotenv
+.env
