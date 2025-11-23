@@ -137,3 +137,8 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 CORS_ALLOW_CREDENTIALS = True
+
+# ML Training Configuration
+import os
+ML_TRAIN_PATH = os.path.expanduser("~/Downloads/train")
+ML_TEST_PATH = os.path.expanduser("~/Downloads/test")

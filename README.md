@@ -1,6 +1,30 @@
-# ImageAnalyzer
+# ImageAnalyzer 🛰️
 
 Sistema de análisis y clasificación de imágenes satelitales usando Python, Django y Machine Learning (Random Forest) para la detección de ciénagas en imágenes Sentinel-2.
+
+## 🚀 Inicio Rápido (TL;DR)
+
+```bash
+# 1. Preparar entorno
+python3 -m venv venv && source venv/bin/activate
+pip install -r requirements.txt
+python manage.py migrate
+
+# 2. Preparar imágenes
+mkdir -p ~/Downloads/train ~/Downloads/test
+# Copiar 30 imágenes .tif en cada carpeta
+
+# 3. Iniciar backend
+python manage.py runserver  # Terminal 1
+
+# 4. Entrenar modelo (nueva terminal)
+curl -X POST http://localhost:8000/api/train/ -H "Content-Type: application/json" -d '{}'
+
+# 5. Iniciar frontend (nueva terminal)
+cd frontend && npm install && npm run dev
+
+# 6. Abrir http://localhost:3000
+```
 
 ## Características
 
@@ -10,29 +34,24 @@ Sistema de análisis y clasificación de imágenes satelitales usando Python, Dj
 - ✅ Comandos CLI para entrenamiento y pruebas
 - ✅ Visualización de resultados de clasificación
 - ✅ Frontend React con TypeScript y Vite
+- ✅ Configuración de rutas por defecto para facilitar el uso
 
 ## Requisitos Previos
 
 ### Backend
-- Python 3.8 o superior
+- Python 3.9 o superior
 - Django 4.0+
-- Las siguientes librerías (ver `requirements.txt`):
-  - Django>=4.0,<5.0
-  - djangorestframework>=3.14,<4.0
-  - django-cors-headers>=4.0.0
-  - scikit-learn
-  - pandas
-  - numpy
-  - joblib
-  - Pillow>=9.0,<11.0
-  - rasterio
-  - matplotlib
+- pip 21.0 o superior
 
 ### Frontend
 - Node.js 20.19.0 o superior (recomendado 22.12.0+)
 - npm 10.1.0 o superior
 
-## Instalación
+## 🚀 Guía de Inicio Rápido
+
+Sigue estos pasos en orden para levantar el proyecto completo:
+
+### Paso 1: Preparar el Entorno
 
 1. **Clonar el repositorio:**
    ```bash
@@ -40,40 +59,125 @@ Sistema de análisis y clasificación de imágenes satelitales usando Python, Dj
    cd ImageAnalyzer
    ```
 
-2. **Instalar dependencias:**
+2. **Crear entorno virtual de Python:**
+   ```bash
+   python3 -m venv venv
+   ```
+
+3. **Activar el entorno virtual:**
+   
+   En macOS/Linux:
+   ```bash
+   source venv/bin/activate
+   ```
+   
+   En Windows:
+   ```bash
+   venv\Scripts\activate
+   ```
+
+### Paso 2: Configurar el Backend
+
+1. **Instalar dependencias de Python:**
    ```bash
    pip install -r requirements.txt
    ```
 
-3. **Aplicar migraciones de base de datos:**
+2. **Aplicar migraciones de base de datos:**
    ```bash
    python manage.py migrate
    ```
 
-4. **Verificar que el modelo existe:**
-   El modelo entrenado debe estar en la raíz del proyecto como `modelo_rf_cienagas.pkl`. Si no existe, deberás entrenarlo primero (ver sección de Entrenamiento).
+### Paso 3: Preparar Imágenes de Entrenamiento
 
-## Uso
+1. **Crear carpetas para imágenes:**
+   ```bash
+   mkdir -p ~/Downloads/train
+   mkdir -p ~/Downloads/test
+   ```
 
-### Iniciar el Backend (Django)
+2. **Copiar imágenes satelitales (.tif):**
+   - Coloca 30 imágenes en `~/Downloads/train/` para entrenamiento
+   - Coloca 30 imágenes en `~/Downloads/test/` para pruebas
+   - Las imágenes deben ser archivos Sentinel-2 en formato .tif
+
+   **Nota:** Las rutas por defecto están configuradas en `ImageAnalyzer/settings.py`:
+   ```python
+   ML_TRAIN_PATH = os.path.expanduser("~/Downloads/train")
+   ML_TEST_PATH = os.path.expanduser("~/Downloads/test")
+   ```
+
+### Paso 4: Iniciar el Backend
+
+1. **Iniciar el servidor Django:**
+   ```bash
+   python manage.py runserver
+   ```
+
+   El servidor estará disponible en `http://localhost:8000`
+
+2. **Verificar que el backend está corriendo:**
+   Abre tu navegador en `http://localhost:8000`
+
+### Paso 5: Entrenar el Modelo
+
+**Opción A: Vía API REST (Recomendado)**
+
+Con el backend corriendo, abre una nueva terminal y ejecuta:
 
 ```bash
-python manage.py runserver
+curl -X POST http://localhost:8000/api/train/ \
+  -H "Content-Type: application/json" \
+  -d '{}'
 ```
 
-El servidor estará disponible en `http://localhost:8000`
+O usa el script de prueba incluido:
+```bash
+python test_training_api.py
+```
 
-### Iniciar el Frontend (React)
+**Opción B: Vía Comando CLI**
 
 ```bash
-cd frontend
-npm install
-npm run dev
+python manage.py train_model_cli --train_path ~/Downloads/train --test_path ~/Downloads/test
 ```
 
-El frontend estará disponible en `http://localhost:3000`
+**Tiempo estimado:** 10-15 minutos dependiendo de las imágenes.
 
-**Nota:** Asegúrate de iniciar ambos servidores para que la aplicación funcione correctamente.
+**Resultado:** Se creará el archivo `modelo_rf_cienagas.pkl` (~1.1GB) en la raíz del proyecto.
+
+### Paso 6: Configurar el Frontend
+
+1. **Navegar a la carpeta frontend:**
+   ```bash
+   cd frontend
+   ```
+
+2. **Instalar dependencias de Node.js:**
+   ```bash
+   npm install
+   ```
+
+### Paso 7: Iniciar el Frontend
+
+1. **Iniciar el servidor de desarrollo:**
+   ```bash
+   npm run dev
+   ```
+
+   El frontend estará disponible en `http://localhost:3000`
+
+2. **Abrir la aplicación:**
+   Abre tu navegador en `http://localhost:3000`
+
+### ✅ Verificación Final
+
+Deberías tener corriendo:
+- ✅ Backend Django en `http://localhost:8000`
+- ✅ Frontend React en `http://localhost:3000`
+- ✅ Modelo entrenado `modelo_rf_cienagas.pkl` en la raíz del proyecto
+
+## 📝 Uso de la Aplicación
 
 ### Interfaz Web (React)
 
@@ -82,9 +186,10 @@ El frontend estará disponible en `http://localhost:3000`
    http://localhost:3000
    ```
 
-2. **Subir una imagen .tif:**
+2. **Analizar una imagen:**
    - Haz clic en "Seleccionar archivo" y elige una imagen satelital en formato .tif
    - Haz clic en "Analizar"
+   - Espera mientras se procesa la imagen
    - Se mostrará el mapa de clasificación resultante
 
 ### Interfaz Web Legacy (Django Templates)
@@ -95,58 +200,96 @@ También puedes usar la interfaz legacy basada en templates Django:
 http://localhost:8000/api/analyze/
 ```
 
-### Comandos CLI
+## 🔧 Comandos Útiles
 
-#### Entrenar el Modelo
-
-Entrena un nuevo modelo usando imágenes de entrenamiento:
+### Gestión del Backend
 
 ```bash
-python manage.py train_model_cli --train_path "C:\ruta\a\imagenes\train"
+# Activar entorno virtual
+source venv/bin/activate              # macOS/Linux
+venv\Scripts\activate                 # Windows
+
+# Iniciar servidor Django
+python manage.py runserver
+
+# Crear migraciones
+python manage.py makemigrations
+
+# Aplicar migraciones
+python manage.py migrate
+
+# Crear superusuario para admin
+python manage.py createsuperuser
 ```
 
-Con imágenes de test opcionales:
+### Gestión del Frontend
 
 ```bash
-python manage.py train_model_cli --train_path "C:\ruta\a\imagenes\train" --test_path "C:\ruta\a\imagenes\test"
+# Instalar dependencias
+cd frontend
+npm install
+
+# Iniciar servidor de desarrollo
+npm run dev
+
+# Compilar para producción
+npm run build
+
+# Vista previa de producción
+npm run preview
 ```
 
-El modelo entrenado se guardará como `modelo_rf_cienagas.pkl` en la raíz del proyecto.
+### Comandos CLI de Machine Learning
+
+#### Entrenar el Modelo (Línea de Comandos)
+
+```bash
+# Usar rutas por defecto (~/Downloads/train y ~/Downloads/test)
+python manage.py train_model_cli --train_path ~/Downloads/train --test_path ~/Downloads/test
+
+# Usar rutas personalizadas
+python manage.py train_model_cli --train_path "/ruta/custom/train"
+```
 
 #### Probar el Modelo
 
-Prueba el modelo con una imagen específica:
-
 ```bash
-python manage.py test_model --image "C:\ruta\a\imagen.tif"
-```
+# Probar con una imagen
+python manage.py test_model --image "ruta/a/imagen.tif"
 
-Guardar el resultado de clasificación:
-
-```bash
-python manage.py test_model --image "C:\ruta\a\imagen.tif" --output "C:\ruta\a\resultado.tif"
+# Guardar resultado de clasificación
+python manage.py test_model --image "ruta/a/imagen.tif" --output "ruta/resultado.tif"
 ```
 
 ### API REST
 
 #### Entrenar Modelo (POST)
 
-```http
-POST /api/train/
-Content-Type: application/json
-
-{
-  "train_path": "C:\\ruta\\a\\imagenes\\train",
-  "test_path": "C:\\ruta\\a\\imagenes\\test"  // opcional
-}
+**Usar rutas por defecto (sin parámetros):**
+```bash
+curl -X POST http://localhost:8000/api/train/ \
+  -H "Content-Type: application/json" \
+  -d '{}'
 ```
 
-Respuesta:
+**Especificar rutas personalizadas:**
+```bash
+curl -X POST http://localhost:8000/api/train/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "train_path": "/ruta/custom/train",
+    "test_path": "/ruta/custom/test"
+  }'
+```
+
+**Respuesta exitosa:**
 ```json
 {
   "message": "Training completed successfully",
+  "train_path": "/Users/usuario/Downloads/train",
+  "test_path": "/Users/usuario/Downloads/test",
   "metrics": {
-    "model_path": "..."
+    "model_path": "/ruta/al/modelo_rf_cienagas.pkl"
   }
 }
 ```
@@ -292,19 +435,105 @@ To stop and remove the containers:
 docker-compose down
 ```
 
-## Solución de Problemas
+## ⚠️ Solución de Problemas
 
-### Error: "Model file not found"
-- Asegúrate de que `modelo_rf_cienagas.pkl` existe en la raíz del proyecto
-- Si no existe, entrena el modelo usando `train_model_cli` o el endpoint `/api/train/`
+### Backend
 
-### Error: "No .tif images found"
-- Verifica que las imágenes estén en formato .tif o .tiff
-- Asegúrate de que la ruta al directorio sea correcta
+**Error: "ModuleNotFoundError: No module named 'django'"**
+- Solución: Asegúrate de activar el entorno virtual antes de ejecutar comandos:
+  ```bash
+  source venv/bin/activate  # macOS/Linux
+  ```
 
-### Error al procesar imagen
-- Verifica que la imagen tenga las bandas requeridas (al menos 7 bandas para NIR)
-- Asegúrate de que la imagen esté en formato GeoTIFF válido
+**Error: "Model file not found"**
+- Solución: El modelo no ha sido entrenado. Sigue el **Paso 5** de la guía de inicio rápido para entrenar el modelo
+- Verifica que existe el archivo `modelo_rf_cienagas.pkl` en la raíz del proyecto
+
+**Error: "No .tif images found in training directory"**
+- Solución: Verifica que las carpetas `~/Downloads/train` y `~/Downloads/test` contengan imágenes .tif
+- Asegúrate de que las rutas en `settings.py` apunten a las carpetas correctas
+
+**Error: "Train path does not exist"**
+- Solución: Crea las carpetas necesarias:
+  ```bash
+  mkdir -p ~/Downloads/train ~/Downloads/test
+  ```
+
+### Frontend
+
+**Error: "npm: command not found"**
+- Solución: Instala Node.js desde https://nodejs.org/
+
+**Error: "CORS policy" al hacer peticiones al backend**
+- Solución: Verifica que el backend esté corriendo en `http://localhost:8000`
+- Confirma que `CORS_ALLOWED_ORIGINS` en `settings.py` incluye `http://localhost:3000`
+
+**El frontend no carga**
+- Solución: Verifica que instalaste las dependencias:
+  ```bash
+  cd frontend
+  npm install
+  ```
+
+### Entrenamiento
+
+**El entrenamiento toma mucho tiempo**
+- Esto es normal con 7M+ muestras. Puede tardar 10-15 minutos
+- Puedes reducir el número de imágenes de entrenamiento para pruebas más rápidas
+
+**Error al leer imágenes: "Missing required bands"**
+- Solución: Verifica que las imágenes Sentinel-2 tengan al menos 7 bandas (incluyendo NIR)
+- Asegúrate de usar imágenes en formato GeoTIFF válido
+
+**"No cienaga pixels found in [image]"**
+- Este es un aviso, no un error. Algunas imágenes pueden no contener píxeles clasificados como ciénaga
+- El entrenamiento continuará con las imágenes que sí tienen datos válidos
+
+## 💡 Tips y Mejores Prácticas
+
+### Rendimiento
+
+- **Entrenamiento inicial:** Usa un conjunto pequeño de imágenes (5-10) para validar que todo funciona
+- **Producción:** Usa el conjunto completo de 30+ imágenes para mejor precisión
+- **Hardware:** El entrenamiento se beneficia de múltiples CPU cores (usa todos con `n_jobs=-1`)
+
+### Organización de Datos
+
+```
+~/Downloads/
+├── train/          # 30 imágenes para entrenamiento
+│   ├── imagen1.tif
+│   ├── imagen2.tif
+│   └── ...
+├── test/           # 30 imágenes para validación
+│   ├── imagen31.tif
+│   ├── imagen32.tif
+│   └── ...
+└── nuevas/         # Carpeta para imágenes a clasificar
+    └── imagen_nueva.tif
+```
+
+### Desarrollo
+
+- **Backend:** Usa `nodemon` o similar para hot-reload automático
+- **Frontend:** Vite proporciona hot-reload por defecto con `npm run dev`
+- **API Testing:** Usa Postman o `curl` para probar endpoints
+- **Script de prueba:** Ejecuta `python test_training_api.py` para validar el API
+
+### Producción
+
+- Cambia `DEBUG = False` en `settings.py`
+- Configura un servidor web (Nginx, Apache) para servir archivos estáticos
+- Usa Gunicorn o uWSGI para el backend Django
+- Compila el frontend: `npm run build` y sirve desde `/dist`
+
+## 📂 Archivos Importantes
+
+- **`modelo_rf_cienagas.pkl`** (~1.1GB): Modelo entrenado de Random Forest
+- **`requirements.txt`**: Dependencias de Python
+- **`settings.py`**: Configuración de Django (incluye rutas ML por defecto)
+- **`test_training_api.py`**: Script para probar el API de entrenamiento
+- **`ML_TRAINING_API.md`**: Documentación detallada del API de entrenamiento
 
 ## Licencia
 
