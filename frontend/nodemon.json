@@ -1,0 +1,8 @@
+{
+  "watch": ["src", "vite.config.ts", "tailwind.config.js", "tsconfig.json"],
+  "ext": "ts,tsx,js,jsx,json,css",
+  "ignore": ["node_modules", "dist"],
+  "exec": "vite",
+  "delay": 1000
+}
+

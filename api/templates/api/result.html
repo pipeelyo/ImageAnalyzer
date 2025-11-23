@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analizador de Imágenes - Resultado</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f9;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: inline-block;
+            max-width: 90%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 1.5rem;
+        }
+
+        .image-container {
+            margin-top: 1rem;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 1.5rem;
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Resultado del Análisis</h1>
+        <p>Imagen clasificada exitosamente.</p>
+
+        <div class="image-container">
+            <!-- Placeholder for result image -->
+            <!-- We will need to serve the result image somehow, possibly as a static file or base64 -->
+            {% if result_image_url %}
+            <img src="{{ result_image_url }}" alt="Resultado de Clasificación">
+            {% else %}
+            <p>Visualización no disponible aún.</p>
+            {% endif %}
+        </div>
+
+        <a href="{% url 'analyze_image' %}" class="back-link">Analizar otra imagen</a>
+    </div>
+</body>
+
+</html>
