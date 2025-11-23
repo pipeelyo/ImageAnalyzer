@@ -22,3 +22,7 @@ Thumbs.db
 
 # dotenv
 .env
+
+# Model files (too large for Git)
+*.pkl
+modelo_rf_cienagas.pkl
