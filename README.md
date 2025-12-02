@@ -4,6 +4,17 @@ Sistema de análisis y clasificación de imágenes satelitales usando Python, Dj
 
 ## 🚀 Inicio Rápido (TL;DR)
 
+### Con Docker 🐳 (Recomendado)
+
+```bash
+# 1. Iniciar con un comando
+./docker-start.sh
+
+# 2. Abrir http://localhost
+```
+
+### Sin Docker (Desarrollo Local)
+
 ```bash
 # 1. Preparar entorno
 python3 -m venv venv && source venv/bin/activate
@@ -47,7 +58,189 @@ cd frontend && npm install && npm run dev
 - Node.js 20.19.0 o superior (recomendado 22.12.0+)
 - npm 10.1.0 o superior
 
-## 🚀 Guía de Inicio Rápido
+### Con Docker (Alternativa Recomendada)
+- Docker 20.10 o superior
+- Docker Compose 2.0 o superior
+- 4GB RAM mínimo disponible
+
+## 🐳 Despliegue con Docker (Recomendado)
+
+La forma más rápida y confiable de ejecutar el proyecto es usando Docker. Ver [DOCKER.md](./DOCKER.md) para documentación completa.
+
+### 📋 Requisitos Previos para Docker
+
+- Docker 20.10 o superior
+- Docker Compose 2.0 o superior  
+- 4GB RAM mínimo disponible
+- 30 imágenes .tif en `~/Downloads/train` y 30 en `~/Downloads/test`
+
+### 🚀 Guía Paso a Paso con Docker
+
+#### Paso 1: Preparar las Imágenes de Entrenamiento
+
+```bash
+# Crear las carpetas si no existen
+mkdir -p ~/Downloads/train ~/Downloads/test
+
+# Copiar tus imágenes satelitales .tif
+# - 30 imágenes en ~/Downloads/train/
+# - 30 imágenes en ~/Downloads/test/
+```
+
+#### Paso 2: Levantar los Servicios
+
+**Opción A: Modo Desarrollo (con hot-reload en puerto 3000)**
+```bash
+# Iniciar backend y frontend de desarrollo
+docker compose --profile dev up -d
+
+# Verificar que estén corriendo
+docker compose ps
+```
+
+**Opción B: Modo Producción (puerto 80)**
+```bash
+# Iniciar backend y frontend optimizado
+docker compose up -d backend frontend
+
+# Verificar que estén corriendo
+docker compose ps
+```
+
+#### Paso 3: Entrenar el Modelo
+
+Una vez que los contenedores estén corriendo, entrena el modelo:
+
+**Opción A: Via API REST**
+```bash
+curl -X POST http://localhost:8000/api/train/ \
+  -H "Content-Type: application/json" \
+  -d '{}'
+```
+
+**Opción B: Via CLI dentro del contenedor**
+```bash
+docker compose exec backend python manage.py train_model_cli \
+  --train_path /training-data/train \
+  --test_path /training-data/test
+```
+
+**Tiempo estimado:** 10-15 minutos (procesa ~7M muestras)
+
+**Resultado esperado:**
+```
+Total samples: 7040495, Features: 5
+Model trained successfully.
+Model saved to /app/modelo_rf_cienagas.pkl
+```
+
+#### Paso 4: Usar la Aplicación
+
+Una vez entrenado el modelo, accede al frontend:
+
+- **Desarrollo**: http://localhost:3000
+- **Producción**: http://localhost
+
+**Probar el análisis de imágenes:**
+1. Haz clic en "Choose File" 
+2. Selecciona una imagen .tif
+3. Haz clic en "Analizar"
+4. Espera a que procese (puede tardar ~30 segundos)
+5. Verás el mapa de clasificación (azul = ciénagas, rojo = no ciénagas)
+
+### 🔧 Comandos Docker Útiles
+
+```bash
+# Ver logs en tiempo real
+docker compose logs -f backend
+docker compose logs -f frontend-dev
+
+# Ver todos los logs
+docker compose logs -f
+
+# Reiniciar un servicio
+docker compose restart backend
+docker compose restart frontend-dev
+
+# Detener todos los servicios
+docker compose down
+
+# Detener y limpiar todo (incluyendo volúmenes)
+docker compose down -v
+
+# Reconstruir las imágenes
+docker compose build --no-cache
+
+# Ver estado de los contenedores
+docker compose ps
+
+# Entrar a un contenedor
+docker compose exec backend bash
+docker compose exec frontend-dev sh
+```
+
+### 📊 Verificar que Todo Funciona
+
+```bash
+# 1. Verificar que los contenedores estén corriendo
+docker compose ps
+# Deberías ver: backend (Up), frontend-dev (Up)
+
+# 2. Verificar que el backend responde
+curl http://localhost:8000/api/train/ -X OPTIONS
+
+# 3. Verificar que el modelo existe
+docker compose exec backend ls -lh modelo_rf_cienagas.pkl
+
+# 4. Ver las imágenes de entrenamiento
+docker compose exec backend ls /training-data/train/ | wc -l  # Debería mostrar 30
+docker compose exec backend ls /training-data/test/ | wc -l   # Debería mostrar 30
+```
+
+### ⚠️ Solución de Problemas con Docker
+
+**Problema: Error "ECONNREFUSED" en el frontend**
+```bash
+# Verificar que el backend esté corriendo
+docker compose ps backend
+
+# Reiniciar los servicios
+docker compose restart backend frontend-dev
+```
+
+**Problema: "Train path does not exist"**
+```bash
+# Verificar que las imágenes estén montadas
+docker compose exec backend ls /training-data/train/
+docker compose exec backend ls /training-data/test/
+
+# Si están vacías, verifica que ~/Downloads/train y ~/Downloads/test tengan imágenes
+ls ~/Downloads/train/*.tif | wc -l
+ls ~/Downloads/test/*.tif | wc -l
+```
+
+**Problema: "Model file not found"**
+```bash
+# Entrenar el modelo primero
+curl -X POST http://localhost:8000/api/train/ -H "Content-Type: application/json" -d '{}'
+
+# O usar el CLI
+docker compose exec backend python manage.py train_model_cli \
+  --train_path /training-data/train --test_path /training-data/test
+```
+
+**Problema: Cambios en el código no se reflejan**
+```bash
+# Para el backend, Django recarga automáticamente
+# Para el frontend en dev, Vite recarga automáticamente
+
+# Si no funcionan, reconstruir:
+docker compose down
+docker compose build
+docker compose --profile dev up -d
+```
+
+## 🚀 Guía de Inicio Rápido (Sin Docker)
 
 Sigue estos pasos en orden para levantar el proyecto completo:
 

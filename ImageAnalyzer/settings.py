@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure--#pzx_nm4u$($&hc#6y7dr*tjbjc8g*7k=igl=vp$02%@jr2+2
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'backend', '172.18.0.2', '0.0.0.0']
 
 
 # Application definition
@@ -140,5 +140,5 @@ CORS_ALLOW_CREDENTIALS = True
 
 # ML Training Configuration
 import os
-ML_TRAIN_PATH = os.path.expanduser("~/Downloads/train")
-ML_TEST_PATH = os.path.expanduser("~/Downloads/test")
+ML_TRAIN_PATH = os.environ.get('ML_TRAIN_PATH', os.path.expanduser("~/Downloads/train"))
+ML_TEST_PATH = os.environ.get('ML_TEST_PATH', os.path.expanduser("~/Downloads/test"))

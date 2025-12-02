@@ -8,7 +8,7 @@ interface ComparisonSliderProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const ComparisonSlider = React.forwardRef<HTMLDivElement, ComparisonSliderProps>(
-  ({ className, children, ...props }, ref) => {
+  ({ className, children, ...props }, _ref) => {
     const [position, setPosition] = React.useState(50)
     const [isDragging, setIsDragging] = React.useState(false)
     const containerRef = React.useRef<HTMLDivElement>(null)

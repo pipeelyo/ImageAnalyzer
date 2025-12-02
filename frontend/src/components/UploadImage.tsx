@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Upload, Loader2, File, Scan, RefreshCw } from 'lucide-react';
+import { Loader2, File, Scan, RefreshCw } from 'lucide-react';
 import { analyzeImage } from '@/services/api';
 
 interface UploadImageProps {

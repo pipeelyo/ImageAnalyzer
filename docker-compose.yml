@@ -1,0 +1,63 @@
+services:
+  # Backend Django
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: imageanalyzer-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      - ./media:/app/media
+      - ./modelo_rf_cienagas.pkl:/app/modelo_rf_cienagas.pkl
+      - ~/Downloads/train:/training-data/train
+      - ~/Downloads/test:/training-data/test
+    environment:
+      - DEBUG=True
+      - PYTHONUNBUFFERED=1
+      - ML_TRAIN_PATH=/training-data/train
+      - ML_TEST_PATH=/training-data/test
+    networks:
+      - imageanalyzer-network
+    restart: unless-stopped
+    command: python manage.py runserver 0.0.0.0:8000
+
+  # Frontend React (Producción)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: imageanalyzer-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - imageanalyzer-network
+    restart: unless-stopped
+
+  # Frontend React (Desarrollo - opcional)
+  frontend-dev:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: imageanalyzer-frontend-dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_URL=http://backend:8000
+    depends_on:
+      - backend
+    networks:
+      - imageanalyzer-network
+    restart: unless-stopped
+    profiles:
+      - dev
+
+networks:
+  imageanalyzer-network:
+    driver: bridge
