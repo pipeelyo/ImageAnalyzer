@@ -49,18 +49,168 @@ docker-compose --profile dev up -d
 
 ## 📂 Preparar Datos de Entrenamiento
 
-Para entrenar el modelo, necesitas montar tus imágenes satelitales:
+### 📁 Ubicación de las Imágenes
+
+Las imágenes para entrenar el modelo deben estar en estas carpetas de tu máquina:
+
+```
+~/Downloads/train/    → 30 imágenes satelitales .tif para entrenamiento
+~/Downloads/test/     → 30 imágenes satelitales .tif para pruebas
+```
+
+### 🔄 Cómo Cargar las Imágenes
+
+**Opción 1: Crear las carpetas y copiar imágenes**
 
 ```bash
-# 1. Crear carpetas locales
+# 1. Crear las carpetas si no existen
 mkdir -p ~/Downloads/train ~/Downloads/test
 
-# 2. Copiar tus imágenes .tif
-cp /ruta/a/imagenes/*.tif ~/Downloads/train/
-cp /ruta/a/imagenes/*.tif ~/Downloads/test/
+# 2. Copiar tus imágenes .tif desde su ubicación actual
+cp /ruta/donde/tienes/imagenes/train/*.tif ~/Downloads/train/
+cp /ruta/donde/tienes/imagenes/test/*.tif ~/Downloads/test/
 
-# 3. Actualizar docker-compose.yml para montar las carpetas
-# Ya está configurado en la sección volumes del servicio backend
+# 3. Verificar que se copiaron correctamente
+ls ~/Downloads/train/*.tif | wc -l   # Debería mostrar 30
+ls ~/Downloads/test/*.tif | wc -l    # Debería mostrar 30
+```
+
+**Opción 2: Mover carpetas existentes**
+
+```bash
+# Si ya tienes las carpetas train y test en otra ubicación
+mv /ruta/donde/tienes/train ~/Downloads/
+mv /ruta/donde/tienes/test ~/Downloads/
+
+# Verificar
+ls ~/Downloads/train/*.tif | wc -l   # 30 imágenes
+ls ~/Downloads/test/*.tif | wc -l    # 30 imágenes
+```
+
+### ✅ Verificar desde Docker
+
+Una vez que los contenedores estén corriendo, verifica que Docker puede ver las imágenes:
+
+```bash
+# Verificar cantidad de imágenes de entrenamiento
+docker-compose exec backend ls /training-data/train/ | wc -l    # 30
+
+# Verificar cantidad de imágenes de prueba  
+docker-compose exec backend ls /training-data/test/ | wc -l     # 30
+
+# Ver detalles de las imágenes montadas
+docker-compose exec backend ls -lh /training-data/train/
+docker-compose exec backend ls -lh /training-data/test/
+
+# Verificar que una imagen es accesible
+docker-compose exec backend file /training-data/train/Sentinel2_*.tif | head -1
+```
+
+### 📋 Cómo Funcionan los Volúmenes
+
+En el `docker-compose.yml` tenemos configurado:
+
+```yaml
+volumes:
+  - ~/Downloads/train:/training-data/train
+  - ~/Downloads/test:/training-data/test
+```
+
+Esto significa:
+- **Host** `~/Downloads/train/` → **Contenedor** `/training-data/train/`
+- **Host** `~/Downloads/test/` → **Contenedor** `/training-data/test/`
+
+**Importante:** Los cambios en `~/Downloads/train/` o `~/Downloads/test/` se reflejan **inmediatamente** dentro del contenedor porque es un montaje directo (no una copia).
+
+## 🎓 Entrenar el Modelo
+
+Una vez que tengas las imágenes cargadas en `~/Downloads/train` y `~/Downloads/test`, y los contenedores estén corriendo, puedes entrenar el modelo.
+
+### Opción 1: Via API REST (Recomendado)
+
+```bash
+# Entrenar el modelo con las rutas por defecto
+curl -X POST http://localhost:8000/api/train/ \
+  -H "Content-Type: application/json" \
+  -d '{}'
+
+# O especificar rutas personalizadas (dentro del contenedor)
+curl -X POST http://localhost:8000/api/train/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "train_path": "/training-data/train",
+    "test_path": "/training-data/test"
+  }'
+```
+
+### Opción 2: Via CLI dentro del contenedor
+
+```bash
+# Entrenar con rutas por defecto
+docker-compose exec backend python manage.py train_model_cli \
+  --train_path /training-data/train \
+  --test_path /training-data/test
+
+# Ver el progreso en tiempo real
+docker-compose logs -f backend
+```
+
+### 📊 Resultado Esperado
+
+El entrenamiento procesará todas las imágenes y debería mostrar:
+
+```
+Training started. Train dir: /training-data/train, Test dir: /training-data/test
+Processing training image: Sentinel2_10bandas_*.tif
+Processing training image: Sentinel2_10bandas_*.tif
+...
+Total samples: 7040495, Features: 5
+Model trained successfully.
+Model saved to /app/modelo_rf_cienagas.pkl
+```
+
+**Tiempo estimado:** 10-15 minutos dependiendo de tu hardware.
+
+### ✅ Verificar que el Modelo se Entrenó
+
+```bash
+# Verificar que el archivo del modelo existe
+docker-compose exec backend ls -lh modelo_rf_cienagas.pkl
+
+# Debería mostrar algo como:
+# -rw-r--r-- 1 root root 1.1G Dec  1 23:59 modelo_rf_cienagas.pkl
+```
+
+## 🚀 Usar la Aplicación
+
+Una vez que el modelo esté entrenado, puedes usar el frontend para analizar imágenes:
+
+### Acceso
+
+- **Modo Desarrollo:** http://localhost:3000
+- **Modo Producción:** http://localhost
+
+### Probar el Análisis
+
+1. Abre el navegador en la URL correspondiente
+2. Haz clic en "Choose File" o "Cargar Imagen"
+3. Selecciona una imagen satelital .tif de tu computadora
+4. Haz clic en "Analizar"
+5. Espera ~30 segundos (dependiendo del tamaño de la imagen)
+6. Verás el resultado:
+   - **Azul:** Áreas clasificadas como ciénagas
+   - **Rojo:** Áreas clasificadas como no ciénagas
+
+### Ver Logs del Análisis
+
+```bash
+# Monitorear en tiempo real
+docker-compose logs -f backend
+
+# Deberías ver:
+# Loading model from /app/modelo_rf_cienagas.pkl...
+# Model loaded successfully.
+# POST /api/analyze-api/ HTTP/1.1" 200
 ```
 
 ## 🎯 Comandos Útiles
