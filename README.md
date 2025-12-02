@@ -89,22 +89,16 @@ mkdir -p ~/Downloads/train ~/Downloads/test
 
 #### Paso 2: Levantar los Servicios
 
-**Opción A: Modo Desarrollo (con hot-reload en puerto 3000)**
 ```bash
-# Iniciar backend y frontend de desarrollo
-docker compose --profile dev up -d
+# Iniciar backend y frontend
+docker compose up -d
 
 # Verificar que estén corriendo
 docker compose ps
-```
 
-**Opción B: Modo Producción (puerto 80)**
-```bash
-# Iniciar backend y frontend optimizado
-docker compose up -d backend frontend
-
-# Verificar que estén corriendo
-docker compose ps
+# Deberías ver:
+# - imageanalyzer-backend (puerto 8000)
+# - imageanalyzer-frontend (puerto 3000)
 ```
 
 #### Paso 3: Entrenar el Modelo
@@ -138,8 +132,8 @@ Model saved to /app/modelo_rf_cienagas.pkl
 
 Una vez entrenado el modelo, accede al frontend:
 
-- **Desarrollo**: http://localhost:3000
-- **Producción**: http://localhost
+- **Frontend**: http://localhost:3000
+- **Backend API**: http://localhost:8000
 
 **Probar el análisis de imágenes:**
 1. Haz clic en "Choose File" 

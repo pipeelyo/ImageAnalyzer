@@ -11,15 +11,12 @@ Esta guía explica cómo ejecutar ImageAnalyzer usando Docker y Docker Compose.
 
 ## 🏗️ Arquitectura
 
-El proyecto incluye tres contenedores:
+El proyecto incluye dos contenedores:
 
 1. **backend**: Django API (puerto 8000)
-2. **frontend**: React + Nginx (puerto 80)
-3. **frontend-dev**: React + Vite Dev Server (puerto 3000) - Solo para desarrollo
+2. **frontend**: React + Vite Dev Server con hot-reload (puerto 3000)
 
 ## 🚀 Inicio Rápido
-
-### Opción 1: Producción (Recomendado)
 
 ```bash
 # 1. Construir e iniciar los servicios
@@ -32,18 +29,7 @@ docker-compose ps
 docker-compose logs -f
 
 # 4. Acceder a la aplicación
-# Frontend: http://localhost
-# Backend API: http://localhost:8000
-```
-
-### Opción 2: Desarrollo
-
-```bash
-# Iniciar backend + frontend de desarrollo
-docker-compose --profile dev up -d
-
-# Acceder a:
-# Frontend Dev: http://localhost:3000
+# Frontend: http://localhost:3000
 # Backend API: http://localhost:8000
 ```
 
@@ -187,8 +173,8 @@ Una vez que el modelo esté entrenado, puedes usar el frontend para analizar im�
 
 ### Acceso
 
-- **Modo Desarrollo:** http://localhost:3000
-- **Modo Producción:** http://localhost
+- **Frontend:** http://localhost:3000 (con hot-reload habilitado)
+- **Backend API:** http://localhost:8000
 
 ### Probar el Análisis
 

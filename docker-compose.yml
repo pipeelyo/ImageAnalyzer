@@ -23,26 +23,12 @@ services:
     restart: unless-stopped
     command: python manage.py runserver 0.0.0.0:8000
 
-  # Frontend React (Producción)
+  # Frontend React (Desarrollo con hot-reload)
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile
-    container_name: imageanalyzer-frontend
-    ports:
-      - "80:80"
-    depends_on:
-      - backend
-    networks:
-      - imageanalyzer-network
-    restart: unless-stopped
-
-  # Frontend React (Desarrollo - opcional)
-  frontend-dev:
-    build:
-      context: ./frontend
       dockerfile: Dockerfile.dev
-    container_name: imageanalyzer-frontend-dev
+    container_name: imageanalyzer-frontend
     ports:
       - "3000:3000"
     volumes:
@@ -55,8 +41,6 @@ services:
     networks:
       - imageanalyzer-network
     restart: unless-stopped
-    profiles:
-      - dev
 
 networks:
   imageanalyzer-network:
