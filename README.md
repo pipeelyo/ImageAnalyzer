@@ -87,6 +87,8 @@ mkdir -p ~/Downloads/train ~/Downloads/test
 # - 30 imágenes en ~/Downloads/test/
 ```
 
+**Nota:** Si vas a correr esto en otro computador o servidor con las imágenes en otra ubicación, puedes personalizar las rutas creando un archivo `.env` (ver [DOCKER.md](./DOCKER.md) sección "Configuración para Diferentes Ambientes").
+
 #### Paso 2: Levantar los Servicios
 
 ```bash

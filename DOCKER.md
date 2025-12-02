@@ -37,12 +37,14 @@ docker-compose logs -f
 
 ### 📁 Ubicación de las Imágenes
 
-Las imágenes para entrenar el modelo deben estar en estas carpetas de tu máquina:
+**Por defecto**, las imágenes deben estar en estas carpetas:
 
 ```
 ~/Downloads/train/    → 30 imágenes satelitales .tif para entrenamiento
 ~/Downloads/test/     → 30 imágenes satelitales .tif para pruebas
 ```
+
+**Para otros ambientes**, puedes personalizar las rutas usando variables de entorno (ver sección "Configuración para Diferentes Ambientes" más abajo).
 
 ### 🔄 Cómo Cargar las Imágenes
 
@@ -107,6 +109,75 @@ Esto significa:
 - **Host** `~/Downloads/test/` → **Contenedor** `/training-data/test/`
 
 **Importante:** Los cambios en `~/Downloads/train/` o `~/Downloads/test/` se reflejan **inmediatamente** dentro del contenedor porque es un montaje directo (no una copia).
+
+### 🌍 Configuración para Diferentes Ambientes
+
+Si vas a correr el proyecto en **otro computador o servidor**, puedes personalizar las rutas de los datos:
+
+#### Método 1: Archivo .env (Recomendado)
+
+```bash
+# 1. Copia el archivo de ejemplo
+cp .env.example .env
+
+# 2. Edita el archivo .env y cambia las rutas
+nano .env  # o usa tu editor favorito
+```
+
+Contenido del `.env`:
+```bash
+# Cambia estas rutas según tu ambiente
+TRAIN_DATA_PATH=/ruta/absoluta/a/tus/imagenes/train
+TEST_DATA_PATH=/ruta/absoluta/a/tus/imagenes/test
+```
+
+#### Método 2: Variables de Entorno en la Terminal
+
+```bash
+# Exportar variables antes de iniciar Docker
+export TRAIN_DATA_PATH=/opt/data/train
+export TEST_DATA_PATH=/opt/data/test
+
+# Iniciar Docker
+docker-compose up -d
+```
+
+#### Ejemplos para Diferentes Sistemas
+
+**Mac/Linux:**
+```bash
+TRAIN_DATA_PATH=/Users/tuusuario/mi-proyecto/imagenes/train
+TEST_DATA_PATH=/Users/tuusuario/mi-proyecto/imagenes/test
+```
+
+**Windows con WSL2:**
+```bash
+TRAIN_DATA_PATH=/mnt/c/Users/tuusuario/imagenes/train
+TEST_DATA_PATH=/mnt/c/Users/tuusuario/imagenes/test
+```
+
+**Servidor Linux:**
+```bash
+TRAIN_DATA_PATH=/opt/imageanalyzer/data/train
+TEST_DATA_PATH=/opt/imageanalyzer/data/test
+```
+
+**Docker Desktop en Windows:**
+```bash
+TRAIN_DATA_PATH=C:\Users\tuusuario\imagenes\train
+TEST_DATA_PATH=C:\Users\tuusuario\imagenes\test
+```
+
+#### Verificar las Rutas Configuradas
+
+```bash
+# Ver qué rutas está usando Docker
+docker-compose config | grep "training-data"
+
+# Verificar que las imágenes están accesibles
+docker-compose exec backend ls /training-data/train/ | wc -l
+docker-compose exec backend ls /training-data/test/ | wc -l
+```
 
 ## 🎓 Entrenar el Modelo
 

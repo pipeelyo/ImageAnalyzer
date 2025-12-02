@@ -11,8 +11,8 @@ services:
       - .:/app
       - ./media:/app/media
       - ./modelo_rf_cienagas.pkl:/app/modelo_rf_cienagas.pkl
-      - ~/Downloads/train:/training-data/train
-      - ~/Downloads/test:/training-data/test
+      - ${TRAIN_DATA_PATH:-~/Downloads/train}:/training-data/train
+      - ${TEST_DATA_PATH:-~/Downloads/test}:/training-data/test
     environment:
       - DEBUG=True
       - PYTHONUNBUFFERED=1
